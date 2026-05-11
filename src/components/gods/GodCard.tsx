@@ -4,8 +4,8 @@ import { useEffect, useRef, Suspense } from "react";
 import { OrbitControls } from "@react-three/drei";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { LazyCanvas } from "@/components/canvas/LazyCanvas";
-import { GodModel } from "@/components/canvas/GodModel";
-import type { God } from "@/data/gods";
+import { GodModel, preloadGodModel } from "@/components/canvas/GodModel";
+import { gods, type God } from "@/data/gods";
 
 interface GodCardProps {
   god: God;
@@ -43,12 +43,17 @@ export function GodCard({ god, index }: GodCardProps) {
     const st = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: "top 70%",
-      onEnter: () => gsap.to(contentRef.current, { y: 0, opacity: 1, duration: 1 }),
+      onEnter: () => {
+        gsap.to(contentRef.current, { y: 0, opacity: 1, duration: 1 });
+        const olympians = gods.filter((g) => g.realm === "olympus");
+        const next = olympians[index + 1];
+        if (next) preloadGodModel(next.modelPath);
+      },
       onLeaveBack: () => gsap.to(contentRef.current, { y: 40, opacity: 0, duration: 0.5 }),
     });
 
     return () => st.kill();
-  }, []);
+  }, [index]);
 
   return (
     <section
@@ -77,7 +82,7 @@ export function GodCard({ god, index }: GodCardProps) {
               <directionalLight position={[5, 8, 5]} intensity={1.2} />
               <pointLight position={[-3, 3, 3]} intensity={0.5} />
               <Suspense fallback={null}>
-                <GodModel modelPath={god.modelPath} autoRotate />
+                <GodModel modelPath={god.modelPath} />
               </Suspense>
               <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={1} />
             </LazyCanvas>

@@ -56,3 +56,6 @@ next-env.d.ts
 # Temp
 /temp-project
 /out/
+
+# Backups dos modelos 3D pré-otimização
+/models-original-backup/

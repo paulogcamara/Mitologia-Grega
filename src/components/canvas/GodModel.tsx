@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useGLTF, Bounds, Center } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -13,9 +13,10 @@ interface GodModelProps {
   yOffset?: number;
 }
 
-export function GodModel({ modelPath, autoRotate = true, margin = 1.3, yOffset = 0 }: GodModelProps) {
+export function GodModel({ modelPath, autoRotate = false, margin = 1.3, yOffset = 0 }: GodModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF(assetPath(modelPath), DRACO_DECODER_PATH);
+  const cloned = useMemo(() => scene.clone(true), [scene]);
 
   useFrame(() => {
     if (!groupRef.current || !autoRotate) return;
@@ -26,9 +27,13 @@ export function GodModel({ modelPath, autoRotate = true, margin = 1.3, yOffset =
     <group ref={groupRef} position={[0, yOffset, 0]}>
       <Bounds fit clip observe margin={margin}>
         <Center>
-          <primitive object={scene.clone()} />
+          <primitive object={cloned} />
         </Center>
       </Bounds>
     </group>
   );
+}
+
+export function preloadGodModel(modelPath: string) {
+  useGLTF.preload(assetPath(modelPath), DRACO_DECODER_PATH);
 }
