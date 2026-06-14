@@ -41,7 +41,7 @@ export function Footer() {
         </p>
 
         <p className="font-[family-name:var(--font-cormorant)] text-lg text-marble-dark/30 mt-6 leading-relaxed">
-          Uma experiencia imersiva pelos reinos dos deuses
+          Uma experiência imersiva pelos reinos dos deuses
         </p>
 
         <div className="w-16 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent mt-12" />
@@ -62,7 +62,7 @@ export function Footer() {
         </div>
 
         <p className="font-[family-name:var(--font-cormorant)] text-sm text-marble-dark/15 mt-12">
-          {new Date().getFullYear()} Paulo Camara
+          {new Date().getFullYear()} Paulo Câmara
         </p>
       </div>
     </footer>

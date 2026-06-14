@@ -86,3 +86,8 @@ html.lenis body {
 canvas {
   touch-action: none;
 }
+
+@keyframes sndbar {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1); }
+}

@@ -5,41 +5,51 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { LazyCanvas } from "@/components/canvas/LazyCanvas";
 import { TempleModel } from "@/components/canvas/TempleModel";
 import { Lighting } from "@/components/canvas/Lighting";
+import { Clouds } from "@/components/canvas/Clouds";
+import { PostFX } from "@/components/canvas/PostFX";
 import { OrbitControls, ContactShadows } from "@react-three/drei";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { cosmogony, threshold } from "@/data/narrative";
 
-const narrativeTexts = [
-  "No principio, havia apenas o Caos — um vazio infinito e primordial, sem forma, sem luz, sem tempo.",
-  "Da escuridao nasceram Gaia, a Terra, e Urano, o Ceu. Juntos, geraram os Titas — seres colossais que governaram por eras.",
-  "Mas Zeus, o mais jovem dos filhos de Cronos, desafiou a tirania de seu pai. Uma guerra cosmica sacudiu o universo — a Titanomaquia.",
-  "Os Olimpicos triunfaram. O trovao selou a vitoria, e o Monte Olimpo se tornou o trono eterno dos deuses.",
-  "No pico mais alto da Grecia, alem das nuvens e do alcance dos mortais, ergue-se a morada dos deuses. Palacios de marmore e ouro reluzem sob uma luz eterna.",
-];
+function TempleScene({ mobile = false }: { mobile?: boolean }) {
+  return (
+    <>
+      <Lighting />
+      <Suspense fallback={null}>
+        <TempleModel position={[0, -1, 0]} scale={0.2} />
+        <Clouds variant="mist" count={mobile ? 14 : 28} />
+        <ContactShadows position={[0, -1.5, 0]} opacity={0.2} blur={2} far={4} />
+      </Suspense>
+      <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.8} />
+      <PostFX preset="olympus" enabled={!mobile} />
+    </>
+  );
+}
 
 export function Hero() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const inviteRef = useRef<HTMLParagraphElement>(null);
   const paragraphRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!titleRef.current || !subtitleRef.current) return;
 
-    // Titulo e subtitulo — animacao de entrada
+    // Limiar: o nome emerge do escuro, e o convite chama o scroll.
     gsap.set(titleRef.current, { y: 60, opacity: 0 });
     gsap.set(subtitleRef.current, { y: 40, opacity: 0 });
+    gsap.set(inviteRef.current, { opacity: 0 });
 
-    gsap.to(titleRef.current, {
-      y: 0, opacity: 1, duration: 1.5, delay: 0.3, ease: "power3.out",
-    });
-    gsap.to(subtitleRef.current, {
-      y: 0, opacity: 1, duration: 1.2, delay: 0.8, ease: "power3.out",
-    });
+    gsap.to(titleRef.current, { y: 0, opacity: 1, duration: 1.6, delay: 0.4, ease: "power3.out" });
+    gsap.to(subtitleRef.current, { y: 0, opacity: 1, duration: 1.2, delay: 1.0, ease: "power3.out" });
+    gsap.to(inviteRef.current, { opacity: 1, duration: 1.2, delay: 1.8, ease: "power2.out" });
 
-    // Paragrafos — iniciam invisiveis, aparecem ao scroll
+    // Cada beat da cosmogonia aparece ao entrar na tela e some ao sair —
+    // a leitura sobe com você, como degraus de luz na subida ao Olimpo.
     paragraphRefs.current.forEach((p) => {
       if (!p) return;
-
       gsap.set(p, { opacity: 0, y: 30 });
-
       ScrollTrigger.create({
         trigger: p,
         start: "top 75%",
@@ -58,30 +68,45 @@ export function Hero() {
 
   return (
     <section className="relative" style={{ marginLeft: "8vw", marginRight: "8vw" }}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+      {/* Mobile: o templo vive ATRÁS do texto, como o Olimpo ao longe na névoa */}
+      <div className="md:hidden absolute inset-0 z-0 pointer-events-none" aria-hidden>
+        <div className="sticky top-0 h-screen flex items-center justify-center opacity-45">
+          <LazyCanvas className="w-full h-[70vh]" cameraPosition={[0, 1, 5]} cameraFov={50}>
+            <TempleScene mobile />
+          </LazyCanvas>
+        </div>
+      </div>
+
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-16">
         {/* Coluna do texto */}
         <div>
-          {/* Titulo */}
+          {/* Título + convite */}
           <div className="h-screen flex flex-col justify-center">
             <h1
               ref={titleRef}
               className="font-[family-name:var(--font-cinzel)] text-5xl md:text-6xl lg:text-7xl font-bold tracking-wider text-gold"
               style={{ textShadow: "0 0 40px rgba(201, 168, 76, 0.3)" }}
             >
-              MITOLOGIA
+              {threshold.title[0]}
               <br />
-              GREGA
+              {threshold.title[1]}
             </h1>
             <p
               ref={subtitleRef}
               className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl text-marble-dark mt-6 tracking-widest uppercase"
             >
-              Uma jornada pelos reinos dos deuses
+              {threshold.subtitle}
+            </p>
+            <p
+              ref={inviteRef}
+              className="font-[family-name:var(--font-cinzel)] text-[0.7rem] md:text-xs text-gold/50 mt-12 tracking-[0.35em] uppercase"
+            >
+              {threshold.invite}
             </p>
           </div>
 
-          {/* Cada paragrafo = tela inteira */}
-          {narrativeTexts.map((text, i) => (
+          {/* Cada beat da cosmogonia = uma tela inteira */}
+          {cosmogony.map((text, i) => (
             <div key={i} className="h-screen flex items-center">
               <p
                 ref={(el) => { paragraphRefs.current[i] = el; }}
@@ -93,20 +118,11 @@ export function Hero() {
           ))}
         </div>
 
-        {/* Modelo 3D sticky */}
+        {/* Desktop: o templo sticky ao lado, emergindo da névoa */}
         <div className="hidden md:block">
           <div className="sticky top-0 h-screen flex items-center justify-center">
-            <LazyCanvas
-              className="w-full h-[75vh]"
-              cameraPosition={[0, 1, 5]}
-              cameraFov={50}
-            >
-              <Lighting />
-              <Suspense fallback={null}>
-                <TempleModel position={[0, -1, 0]} scale={0.2} />
-                <ContactShadows position={[0, -1.5, 0]} opacity={0.2} blur={2} far={4} />
-              </Suspense>
-              <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.8} />
+            <LazyCanvas className="w-full h-[75vh]" cameraPosition={[0, 1, 5]} cameraFov={50}>
+              <TempleScene mobile={isMobile} />
             </LazyCanvas>
           </div>
         </div>

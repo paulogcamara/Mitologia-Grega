@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { threshold } from "@/data/narrative";
 
 export function Loader() {
   const [progress, setProgress] = useState(0);
@@ -29,6 +30,9 @@ export function Loader() {
         progress >= 100 ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
+      <p className="font-[family-name:var(--font-cormorant)] italic text-base md:text-lg text-marble-dark/50 mb-6">
+        {threshold.loaderLine}
+      </p>
       <h2 className="font-[family-name:var(--font-cinzel)] text-2xl md:text-3xl text-gold tracking-[0.3em] mb-8">
         OLIMPO
       </h2>
