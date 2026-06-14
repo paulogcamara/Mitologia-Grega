@@ -91,3 +91,10 @@ canvas {
   0%, 100% { transform: scaleY(0.5); }
   50% { transform: scaleY(1); }
 }
+
+/* luz de tocha que respira dentro dos arcos das Três Portas */
+@keyframes torch {
+  0%, 100% { opacity: 0.12; transform: scale(1); }
+  45% { opacity: 0.22; transform: scale(1.05); }
+  70% { opacity: 0.15; transform: scale(0.98); }
+}
